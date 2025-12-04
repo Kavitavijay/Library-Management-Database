@@ -1,0 +1,134 @@
+SQL> CREATE TABLE books (
+  2      book_id NUMBER PRIMARY KEY,
+  3      title VARCHAR2(100),
+  4      author VARCHAR2(50),
+  5      category VARCHAR2(30),
+  6      copies_available NUMBER
+  7  );
+
+Table created.
+
+SQL> CREATE TABLE members (
+  2      member_id NUMBER PRIMARY KEY,
+  3      name VARCHAR2(50),
+  4      email VARCHAR2(50),
+  5      phone VARCHAR2(15)
+  6  );
+
+Table created.
+
+SQL> CREATE TABLE issued_books (
+  2      issue_id NUMBER PRIMARY KEY,
+  3      member_id NUMBER,
+  4      book_id NUMBER,
+  5      issue_date DATE,
+  6      due_date DATE,
+  7      return_date DATE,
+  8      FOREIGN KEY (member_id) REFERENCES members(member_id),
+  9      FOREIGN KEY (book_id) REFERENCES books(book_id)
+ 10  );
+
+Table created.
+
+SQL> INSERT INTO books VALUES (1, 'DBMS Concepts', 'Korth', 'Database', 5);
+
+1 row created.
+
+SQL> INSERT INTO books VALUES (2, 'Operating Systems', 'Galvin', 'OS', 3);
+
+1 row created.
+
+SQL> INSERT INTO books VALUES (3, 'Python Basics', 'Guido', 'Programming', 10);
+
+1 row created.
+
+SQL> INSERT INTO members VALUES (101, 'Amit Sharma', 'amit@gmail.com', '9876543210');
+
+1 row created.
+
+SQL> INSERT INTO members VALUES (102, 'Neha Verma', 'neha@gmail.com', '9008001234');
+
+1 row created.
+
+SQL> INSERT INTO issued_books VALUES (1, 101, 1, SYSDATE, SYSDATE + 7, NULL);
+
+1 row created.
+
+SQL> INSERT INTO issued_books VALUES (2, 101, 3, SYSDATE, SYSDATE + 15, NULL);
+
+1 row created.
+
+SQL> INSERT INTO issued_books VALUES (3, 102, 2, SYSDATE, SYSDATE + 10, NULL);
+
+1 row created.
+
+SQL> 
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> SELECT m.name, b.title, i.issue_date, i.due_date
+  2  FROM issued_books i
+  3  JOIN members m ON i.member_id = m.member_id
+  4  JOIN books b ON i.book_id = b.book_id;
+SQL> SET PAGES 1000 LINES 500
+SQL>  SELECT m.name, b.title, i.issue_date, i.due_date
+  2   FROM issued_books i
+  3   JOIN members m ON i.member_id = m.member_id
+  4   JOIN books b ON i.book_id = b.book_id;
+
+NAME                                               TITLE                                                                                                ISSUE_DAT DUE_DATE
+-------------------------------------------------- -------------------------------------------------
+Amit Sharma                                        DBMS Concepts                                                                                        04-DEC-25 11-DEC-25
+Amit Sharma                                        Python Basics                                                                                        04-DEC-25 19-DEC-25
+Neha Verma                                         Operating Systems                                                                                    04-DEC-25 14-DEC-25
+
+SQL> SELECT m.name, COUNT(*) AS books_issued
+  2  FROM issued_books i
+  3  JOIN members m ON i.member_id = m.member_id
+  4  GROUP BY m.name;
+
+NAME                                               BOOKS_ISSUED
+-------------------------------------------------- ------------
+Amit Sharma                                                   2
+Neha Verma                                                    1
+
+SQL> SELECT title, copies_available
+  2  FROM books
+  3  WHERE copies_available < 3;
+
+no rows selected
+
+SQL> SELECT m.name, b.title, i.due_date
+  2  FROM issued_books i
+  3  JOIN members m ON i.member_id = m.member_id
+  4  JOIN books b ON i.book_id = b.book_id
+  5  WHERE i.return_date IS NULL
+  6  AND i.due_date < SYSDATE;
+
+no rows selected
+
+SQL> SELECT * FROM books;
+
+   BOOK_ID TITLE                                                                                                AUTHOR                                             CATEGORY             
+---------- -----------------------------------------------------------------------------------------
+         1 DBMS Concepts                                                                                        Korth                                              Database             
+         2 Operating Systems                                                                                    Galvin                                             OS                   
+         3 Python Basics                                                                                        Guido                                              Programming          
+
+SQL> SELECT * FROM members;
+
+ MEMBER_ID NAME                                               EMAIL                                              PHONE
+---------- -------------------------------------------------- --------------------------------------
+       101 Amit Sharma                                        amit@gmail.com                                     9876543210
+       102 Neha Verma                                         neha@gmail.com                                     9008001234
+
+SQL> SELECT * FROM issued_books;
+
+  ISSUE_ID  MEMBER_ID    BOOK_ID ISSUE_DAT DUE_DATE  RETURN_DA
+---------- ---------- ---------- --------- --------- ---------
+         1        101          1 04-DEC-25 11-DEC-25
+         2        101          3 04-DEC-25 19-DEC-25
+         3        102          2 04-DEC-25 14-DEC-25
+
+SQL> 
